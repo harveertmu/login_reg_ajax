@@ -8,7 +8,10 @@ use Validator;
 use Redirect;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use App\Models\UserAccess;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -30,7 +33,7 @@ class UserController extends Controller
         // dd('here');
 
         $validator = Validator::make($request->all(), [
-           
+
             "name"  => "required",
             "email"  => "required|unique:users,email",
             "password"  => "required",
@@ -49,7 +52,7 @@ class UserController extends Controller
 
             // dd($res);
             $user =  User::create($res);
-        //   dd( $user);
+            //   dd( $user);
             if ($user) {
                 return response()->json(['status' => 'success', 'success_code' => '200']);
             }
@@ -74,6 +77,16 @@ class UserController extends Controller
         $password = $request->password;
         // dd( $password);
         if (auth()->attempt(['email' => $email, 'password' => $password])) {
+
+            $id =  Auth::user()->id;
+            $res = [
+                'user_id' =>   $id
+            ];
+
+            // dd($res);
+            $user =  UserAccess::create($res);
+
+
             return response()->json(['status' => 'success', 'success_code' => '200']);
         } else {
             return response()->json(['status' => 'error', 'success_code' => '201']);
@@ -90,9 +103,16 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function home()
     {
-        //
+        // $users=UserAccess::with('users')->groupBy('user_id')->get();
+        $users= DB::table('users_access')
+                 ->select('user_id', DB::raw('count(*) as total'))
+                 ->groupBy('user_id')
+                 ->get();
+
+        // dd($users->toArray());
+        return view('home',compact('users'));
     }
 
     /**

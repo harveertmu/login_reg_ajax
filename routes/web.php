@@ -14,11 +14,11 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::get('/home', function () {
-    return view('home');
-});
+// Route::get('/home', function () {
+//     return view('home');
+// });
 
-
+Route::get('/home',[UserController::class,'home']);
 Route::get('/',[UserController::class,'index']);
 Route::get('/register',[UserController::class,'register']);
 
